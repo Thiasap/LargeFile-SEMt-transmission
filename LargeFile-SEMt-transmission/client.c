@@ -1,9 +1,10 @@
 #include <zmq.h>
-#include "stdio.h"
+#include <stdio.h>
 #include"client.h"
 #include"fConfig.h"
-#define _PRO "[client]"
-struct file_route_msg {
+#define ARGV "test.txt"
+struct file_route_msg
+{
 	unsigned int path_len;
 	char path[255];
 };
@@ -11,53 +12,71 @@ struct file_route_msg {
 int read_file_frame(char* filename, int pos, char* buffer, int length) {
 	FILE* fp = fopen(filename, "rb");
 	if (NULL == fp) {
-		printf(_PRO, "fopen failed!\n");
+		printf("[client]fopen failed!\n");
 		return -1;
 	}
-
-	//调整文件指针
 	fseek(fp, pos, SEEK_SET);
 	int size = fread(buffer, 1, length, fp);
 	if (size != length) {
-		printf(_PRO, "read over!\n");
+		printf("[client]read over!\n");
 	}
 	fclose(fp);
 	return size;
 }
+void zsend() {
+	void *context = zmq_init(1);
 
-int zsend()
-{
-	void * pCtx = NULL;
-	void * pSock = NULL;
-	//使用tcp协议进行通信，需要连接的目标机器IP地址为192.168.1.2
-	//通信使用的网络端口 为7766 
-	const char * pAddr = "tcp://127.0.0.1:7766";
-
-	//创建context 
-	if ((pCtx = zmq_ctx_new()) == NULL)
-	{
-		return 0;
+	//  发送结果的套接字
+	void *sender = zmq_socket(context, ZMQ_DEALER);
+	zmq_connect(sender, "tcp://127.0.0.1:5558");
+	char buffer[FILE_FRAME_SIZE] = { 0 };
+	int pos = 0;
+	Sleep(3000);
+	int sendedk = 0;
+	int sendedm = 0;
+	int sendedg = 0;
+	while (1) {
+		memset(buffer, 0, sizeof buffer);
+		int size = read_file_frame("twly.png", pos, buffer, FILE_FRAME_SIZE);
+		pos += size;
+		if (size == FILE_FRAME_SIZE) {
+			zmq_msg_t msg_frame;
+			zmq_msg_init_size(&msg_frame, size);
+			memcpy(zmq_msg_data(&msg_frame), buffer, size);
+			zmq_msg_send(&msg_frame, sender, ZMQ_SNDMORE);
+			zmq_msg_close(&msg_frame);
+			sendedk += size / 1024;
+			if (sendedk >= 1024) {
+				sendedm++;
+				sendedk = sendedk - 1024;
+			}if (sendedm >= 1024) {
+				sendedg++;
+				sendedm = sendedm - 1024;
+			}
+			printf("[client]%dG %dM %dK sended\n", sendedg, sendedm, sendedk);
+		}
+		else if (size < FILE_FRAME_SIZE)
+		{
+			printf("[client]read file content over %d bytes\n", pos);
+			zmq_msg_t msg_frame;
+			zmq_msg_init_size(&msg_frame, size);
+			memcpy(zmq_msg_data(&msg_frame), buffer, size);
+			zmq_msg_send(&msg_frame, sender, 0);
+			zmq_msg_close(&msg_frame);
+			sendedk += size / 1024;
+			if (sendedk >= 1024) {
+				sendedm++;
+				sendedk = sendedk - 1024;
+			}if (sendedm >= 1024) {
+				sendedg++;
+				sendedm = sendedm - 1024;
+			}
+			printf("[client]%dG %dM %dK sended\n", sendedg, sendedm, sendedk);
+			break;
+		}
 	}
-	//创建socket 
-	if ((pSock = zmq_socket(pCtx, ZMQ_DEALER)) == NULL)
-	{
-		zmq_ctx_destroy(pCtx);
-		return 0;
-	}
-	int iSndTimeout = 5000;// millsecond
-	//设置接收超时 
-	if (zmq_setsockopt(pSock, ZMQ_RCVTIMEO, &iSndTimeout, sizeof(iSndTimeout)) < 0)
-	{
-		zmq_close(pSock);
-		zmq_ctx_destroy(pCtx);
-		return 0;
-	}
-	//连接目标IP192.168.1.2，端口7766 
-	if (zmq_connect(pSock, pAddr) < 0)
-	{
-		zmq_close(pSock);
-		zmq_ctx_destroy(pCtx);
-		return 0;
-	}
+	zmq_close(sender);
+	zmq_ctx_destroy(context);
+	printf("[client]send end\n");
 	return 0;
 }
