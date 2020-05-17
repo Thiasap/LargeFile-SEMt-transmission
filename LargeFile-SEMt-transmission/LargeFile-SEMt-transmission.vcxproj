@@ -163,9 +163,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="client.c" />
+    <ClCompile Include="sender.c" />
     <ClCompile Include="LargeFile-SEMt-transmission.c" />
-    <ClCompile Include="server.c" />
+    <ClCompile Include="receiver.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />

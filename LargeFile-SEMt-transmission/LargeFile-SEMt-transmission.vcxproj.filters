@@ -18,10 +18,10 @@
     <ClCompile Include="LargeFile-SEMt-transmission.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="client.c">
+    <ClCompile Include="sender.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="server.c">
+    <ClCompile Include="receiver.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

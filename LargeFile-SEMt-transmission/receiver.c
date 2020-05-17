@@ -7,7 +7,7 @@ void zrecv() {
 	void *context = zmq_init(1);
 
 	//  用于发送开始信号的套接字
-	void *sink = zmq_socket(context, ZMQ_DEALER);
+	void *sink = zmq_socket(context, ZMQ_PULL);
 	const char * pAddr = "tcp://*:5558";
 	zmq_bind(sink, pAddr);
 	FILE *recvF;
