@@ -91,13 +91,13 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include;E:\Program Files\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;E:\Program Files\vcpkg\installed\x86-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib;czmq.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,13 +109,13 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include;E:\Program Files\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;E:\Program Files\vcpkg\installed\x86-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib;czmq.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,15 +129,15 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include;E:\Program Files\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;E:\Program Files\vcpkg\installed\x86-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib;czmq.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -151,15 +151,15 @@
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\include;E:\Program Files\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\大学\VS\LargeFile-SEMt-transmission\LargeFile-SEMt-transmission\lib;E:\Program Files\vcpkg\installed\x86-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libzmq-v141-mt-s-4_3_2.lib;libzmq-v141-mt-4_3_2.lib;czmq.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

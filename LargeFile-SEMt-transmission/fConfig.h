@@ -5,6 +5,7 @@
 #define FILE_FRAME_SIZE 10240
 #define NAMELENTH 20
 #define MAXTHREAD 8
+#define MAX_FILENAME 255
 struct info
 {
 	pthread_t thread_id;//当前线程id
