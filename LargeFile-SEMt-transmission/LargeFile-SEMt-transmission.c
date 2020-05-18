@@ -7,9 +7,7 @@
 //#include "client.h"
 #include"fConfig.h"
 #include"clientSend.h"
-
-
-
+#include "serverRecv.h"
 int main() {
 	//testrouter();
 	pthread_t pSend, pRecv,pRouter;
@@ -25,7 +23,7 @@ int main() {
 	{
 		printf("pthread_create error: error_code=%d", ret2);
 	}*/
-	int ret3 = pthread_create(&pRouter, NULL, rrclient, NULL);
+	int ret3 = pthread_create(&pRouter, NULL, sender, NULL);
 	if (ret3 != 0)
 	{
 		printf("pthread_create error: error_code=%d", ret3);

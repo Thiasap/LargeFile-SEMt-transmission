@@ -43,7 +43,7 @@ int rread_file_frame(int pos, char* buffer, int length) {
 	fclose(sF);
 	return size;
 }
-int init_zmq() {
+int init_sender() {
 	if ((context = zmq_ctx_new()) == NULL)
 		return 0;
 	if ((requester = zmq_socket(context, ZMQ_REQ)) == NULL) {
@@ -55,13 +55,12 @@ int init_zmq() {
 		zmq_ctx_destroy(context);
 		return 0;
 	}
-	zmq_msg_t msg_frame;
-	zmq_msg_init_size(&msg_frame, sizeof(file));
-	memcpy(zmq_msg_data(&msg_frame), (char *)&file, sizeof(file));
-	zmq_msg_send(&msg_frame, requester, 0);
-	zmq_msg_close(&msg_frame);
+	char *pf = (char *)malloc(sizeof(file));
+	memcpy(pf, (char *)&file, sizeof(file));
+	zmq_send(requester, pf, sizeof(file), 0);
 	char *replayName = s_recv(requester);
-	if (strcmp(file.filename, replayName) == 0)
+	printf("[client]recv reply file name: %s\n", replayName);
+	if (strcmp(file.filename, replayName) == 1)
 		return 1;
 	else return 0;
 }
@@ -149,7 +148,7 @@ void rrclient(int threadMax) {
 	//发送的数据大小初始化
 	for (int i = 0; i < 3; i++) {
 		send_kmg[i] = 0;
-		pthread_mutex_init(&sendsize, NULL);
+		pthread_mutex_init(&sendsize[i], NULL);
 	}
 	for (mthread = 0; mthread < threadMax; mthread++) {
 		ptid[mthread] = pthread_create(&pt[mthread], NULL, zzsend, mthread);
@@ -173,16 +172,20 @@ void sender() {
 	file.filesize = FILESIZE;
 	file.useCrypt = useCrypt;
 	file.spliteSize = splitSize;
+	file.mark = 111;
 	//计算分块并标记为未发送（0）
 	sended = (char *)malloc(file.spliteSize * sizeof(char));
 	memset(sended, 0, sizeof(sended));
 	pthread_mutex_init(&sended_lock, NULL); 
 	pthread_mutex_init(&printf_lock, NULL);
-	if (init_zmq() == 0) {
+	//初始化
+	if (init_sender() == 0) {
 		printf("connect error!\nexit!\n");
 		return 0;
 	}
+	return;
 	rrclient(file.threadNum);
+	pthread_exit(NULL);
 	pthread_mutex_destroy(&sended_lock);
 	pthread_mutex_destroy(&printf_lock);
 	for (int i = 0; i < 3; i++) {

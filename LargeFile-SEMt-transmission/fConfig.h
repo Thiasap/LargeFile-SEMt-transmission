@@ -15,6 +15,7 @@ struct info
 	int connectfd; //当前连接套接字
 };
 typedef struct sFile {
+	char mark;
 	short threadNum;		//线程数
 	unsigned int spliteSize;//分片大小单位Bytes
 	unsigned int filesize;	//文件大小
