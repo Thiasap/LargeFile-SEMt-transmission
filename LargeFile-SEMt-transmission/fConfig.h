@@ -6,7 +6,7 @@
 #define NAMELENTH 20
 #define MAXTHREAD 8
 #define MAX_FILENAME 255
-
+#define INDEX_WRITEFILE_SIZE 4 //写入文件位置所占字节
 #pragma comment(lib,"pthreadVC2.lib")
 struct info
 {

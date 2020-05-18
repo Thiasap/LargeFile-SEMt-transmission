@@ -2,6 +2,7 @@
 #include "serverRecv.h"
 FILE *sF;
 struct sFile file;
+pthread_mutex_t file_lock;
 pthread_mutex_t printf_lock;
 pthread_mutex_t sended_lock;	//发送块标记锁
 char *sended;					//发送块标记
@@ -24,6 +25,10 @@ int init_recver(void * frontend) {
 	s_send(frontend, file.filename);
 	printf("[server]recv file name: %s\n", file.filename);
 	strcat(file.filename, "_recv");
+	if ((sF = fopen("recv.png", "wb")) == NULL){
+		printf("[server]stop because open file err\n");
+		return 0;
+	}
 	//初始化锁
 	pthread_mutex_init(&sended_lock, NULL);
 	pthread_mutex_init(&printf_lock, NULL);
