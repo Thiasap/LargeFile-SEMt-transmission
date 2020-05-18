@@ -163,14 +163,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="clientSend.c" />
     <ClCompile Include="sender.c" />
     <ClCompile Include="LargeFile-SEMt-transmission.c" />
     <ClCompile Include="receiver.c" />
+    <ClCompile Include="serverRecv.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="clientSend.h" />
     <ClInclude Include="fConfig.h" />
     <ClInclude Include="server.h" />
+    <ClInclude Include="serverRecv.h" />
     <ClInclude Include="zhelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

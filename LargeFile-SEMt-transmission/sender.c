@@ -3,11 +3,6 @@
 #include"client.h"
 #include"fConfig.h"
 #define ARGV "test.txt"
-unsigned int thread_num = 0;//用于记录线程数量,当thread_num==MAXTHREAD就应该让新接入的客户端等待了。
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; //线程互斥锁初始化，不确定可用。
-struct info  clients[MAXTHREAD] = { 0 };//保存客户端信息的数组，线程函数中会传入下标，在线程函数中应该使用传入的cur_index而不是thread_num
-int useable[MAXTHREAD];//记录可用的clients下标，创建线程之后将相应下标置0，在线程执行完毕之后应将相应的下标置1；
-
 int send_msg(const char* msg, void *pSock)//发送消息
 {
 	if (zmq_send(pSock, msg, sizeof(msg), 0) < 0){

@@ -24,6 +24,12 @@
     <ClCompile Include="receiver.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="clientSend.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="serverRecv.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fConfig.h">
@@ -36,6 +42,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="server.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="clientSend.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="serverRecv.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
