@@ -31,6 +31,5 @@ int main() {
 	{
 		printf("pthread_create error: error_code=%d", ret2);
 	}*/
-
-	pthread_exit(NULL);
+	pthread_join(pRouter,NULL);
 }

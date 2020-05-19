@@ -32,6 +32,7 @@ typedef struct filebuf {
 	long index;
 	short mark;
 	int size;
+	char splitEnd;
 	char buff[FILE_FRAME_SIZE];
 }filebuf;
 typedef struct start_end {
