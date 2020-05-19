@@ -35,7 +35,7 @@ void z_recv(FILE *recvF) {
 		if (fbuf.mark == 1) {
 			char *p = s_recv(sink);
 			if (strcmp(p, "wait") == 0) s_send(sink, "all recv");
-			printf("[server]all recieved!\n");
+			printf("[server]all received!\n");
 			break;
 		}
 

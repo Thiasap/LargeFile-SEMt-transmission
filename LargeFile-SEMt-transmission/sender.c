@@ -143,8 +143,8 @@ int sender_init() {
 	void *sender = zmq_socket(context, ZMQ_REQ);
 	zmq_connect(sender, "tcp://127.0.0.1:5558");
 #if 1		//文件信息定义
-	char FILENAME[] = "twly.png";
-	short THREADNUM = 2;
+	char FILENAME[] = "kernel";
+	short THREADNUM = 5;
 	short useCrypt = 0;
 	//int splitSize=splitTest();
 	int splitSize = 40960;
