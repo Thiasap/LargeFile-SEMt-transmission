@@ -12,9 +12,9 @@ void *sink;
 const char * pAddr;
 
 void z_recv(FILE *recvF) {
-
 	char buffer[sizeof(filebuf)] = { 0 };
 	filebuf fbuf;
+	int time = 0;
 	while (1) {
 		printf("[server]recv...\n");
 		zmq_recv(sink, buffer, sizeof(filebuf), 0);
@@ -22,6 +22,8 @@ void z_recv(FILE *recvF) {
 		int size = fbuf.size;
 		fseek(recvF, fbuf.index, SEEK_SET);
 		fwrite(fbuf.buff, sizeof(char), size, recvF);
+		time++;
+		//printf("[server]mark=%d...time = %d\n",fbuf.mark,time);
 		if (fbuf.mark == 1) break;
 
 	}
