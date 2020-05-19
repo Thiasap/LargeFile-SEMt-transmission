@@ -6,7 +6,7 @@
 #define NAMELENTH 20
 #define MAXTHREAD 8
 #define MAX_FILENAME 255
-#define INDEX_WRITEFILE_SIZE 4 //写入文件位置所占字节
+#define MARK_SIZE 5 //写入文件位置所占字节
 #pragma comment(lib,"pthreadVC2.lib")
 struct info
 {
@@ -22,4 +22,20 @@ typedef struct sFile {
 	short useCrypt;			//加密方式
 	char filename[255];		//文件名
 };
+typedef struct packInfo {
+	short isAllend;
+	long index;
+	int size;
+
+};
+typedef struct filebuf {
+	long index;
+	short mark;
+	int size;
+	char buff[FILE_FRAME_SIZE];
+}filebuf;
+typedef struct start_end {
+	long start;
+	long end;
+}start_end;
 #endif

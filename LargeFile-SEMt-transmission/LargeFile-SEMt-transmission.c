@@ -3,30 +3,34 @@
 #include <zmq.h>
 #include <pthread.h>
 #include "zhelpers.h"
-//#include "server.h"
-//#include "client.h"
+#include "server.h"
+#include<czmq.h>
+#include "client.h"
 #include"fConfig.h"
-#include"clientSend.h"
-#include "serverRecv.h"
+//#include"clientSend.h"
+//#include "serverRecv.h"
+
 int main() {
 	//testrouter();
 	pthread_t pSend, pRecv,pRouter;
-	//int ret = pthread_create(&pSend, NULL, zsend, NULL);
-	int ret = pthread_create(&pSend, NULL, rrbroker, NULL);
-	if (ret != 0)
-	{
-		printf("pthread_create error: error_code=%d", ret);
-	}
-	//int ret2 = pthread_create(&pRecv, NULL, zrecv, NULL);
-	/*int ret2 = pthread_create(&pRecv, NULL, rrworker, NULL);
-	if (ret2 != 0)
-	{
-		printf("pthread_create error: error_code=%d", ret2);
-	}*/
-	int ret3 = pthread_create(&pRouter, NULL, sender, NULL);
+	int ret3 = pthread_create(&pRouter, NULL, zrecv, NULL);
 	if (ret3 != 0)
 	{
 		printf("pthread_create error: error_code=%d", ret3);
 	}
+	allsend();
+	//int ret = pthread_create(&pSend, NULL, zsend, NULL);
+	/*int ret = pthread_create(&pSend, NULL, allsend, NULL);
+	if (ret != 0)
+	{
+		printf("pthread_create error: error_code=%d", ret);
+	}*/
+	//int ret2 = pthread_create(&pRecv, NULL, zrecv, NULL);
+	/*int ret2 = pthread_create(&pRecv, NULL, zsend, (void *)se1);
+	if (ret2 != 0)
+	{
+		printf("pthread_create error: error_code=%d", ret2);
+	}*/
+
 	pthread_exit(NULL);
 }
