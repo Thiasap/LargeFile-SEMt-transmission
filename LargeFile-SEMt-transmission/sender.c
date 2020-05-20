@@ -203,7 +203,10 @@ void sender_init(argv_info *info) {
 	//初始化file信息
 	if((info->SplitSize) == 0)
 		file.spliteSize = 40960;
-	else file.spliteSize = info->SplitSize;
+	else {
+		int max = getMem();
+		file.spliteSize = info->SplitSize< max ? info->SplitSize: max;
+	}
 	file.filesize = FILESIZE;
 	file.mark = 111;
 	//计算分块并标记为未发送（0）

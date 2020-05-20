@@ -1,5 +1,6 @@
 #pragma pack(1)
 #include"fConfig.h"
+
 int getMem() {
 	MEMORYSTATUSEX mstx;
 	mstx.dwLength = sizeof(mstx);
@@ -10,7 +11,7 @@ DWORD GetProcessorCoreCount() {
 	PSYSTEM_LOGICAL_PROCESSOR_INFORMATION buffer = NULL;
 	DWORD returnLength = 0;
 	DWORD processCoreCount = 0;
-	while (true) {
+	while (1) {
 		DWORD ro = GetLogicalProcessorInformation(buffer, &returnLength);
 		if (ro == FALSE) {
 			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {

@@ -20,7 +20,7 @@ void z_recv(FILE *recvF) {
 		fseek(recvF, fbuf.index, SEEK_SET);
 		//printf("\t\t\t\t\t\t\tss %d %d %d %d pos ftell %d pos %d\n", fbuf.buff[0], fbuf.buff[1], fbuf.buff[2], fbuf.buff[3],ftell(recvF), fbuf.index);
 		fwrite(fbuf.buff, sizeof(char), size, recvF);
-		fflush(recvF);
+		//fflush(recvF);
 		//printf("sss%d",fbuf.splitEnd);
 		if (fbuf.splitEnd == 1) {
 			printf("\n[server]recv...%d\n",sizezzz);
@@ -79,6 +79,10 @@ void ready_recv(argv_info * info) {
 	if ((rF = fopen(file.filename, "wb")) == NULL) {
 		printf("[server]stop because open file err\n");
 		return 0;
+	}
+	if (setvbuf(rF, NULL, _IOLBF, file.spliteSize) != 0)
+	{
+		printf("failed to set up buffer for output file\n");
 	}
 #if 1
 	remove(rF);

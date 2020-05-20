@@ -3,7 +3,6 @@
 #define _FCONFIG_H
 #include <zmq.h>
 #include <pthread.h>
-#include <czmq.h>
 #define FILE_FRAME_SIZE 10240
 #define NAMELENTH 20
 #define MAXTHREAD 8

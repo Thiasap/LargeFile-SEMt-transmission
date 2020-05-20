@@ -1,7 +1,4 @@
 #pragma once
-#ifndef _CRYPTIONS_H
-#define _CRYPTIONS_H
-char * Crypt(char *plain, char *pwd, int mode);
 #ifndef _AES_H_
 #define _AES_H_
 
@@ -92,4 +89,3 @@ void AES_CTR_xcrypt_buffer(struct AES_ctx* ctx, uint8_t* buf, uint32_t length);
 
 
 #endif // _AES_H_
-#endif

@@ -4,10 +4,9 @@
 #include <pthread.h>
 #include "zhelpers.h"
 #include "server.h"
-#include <czmq.h>
 #include "client.h"
 #include"fConfig.h"
-
+#include"sha256.h"
 //#include"clientSend.h"
 //#include "serverRecv.h"
 argv_info param; 
@@ -53,7 +52,7 @@ void help() {
 	printf("\t\t-r run as receiver and receive file,if you don't set filename, it will be set add \"Recv_\" before default name.\n");
 	printf("\t\t-s run as sender and send file.\n");
 	printf("\t\t\tconnect_ip is your friend's ip and port is his port\n");
-	printf("\t\t\n");
+	printf("\t\tAES, DES, 3DES, RC2, RC4\n");
 	printf("PLEASE negotiate the password by OTHER SAFE means.\n");
 	printf("You need set AT LEAST ip, port and file.\n");
 	printf("If you are receiver, you cat don't set ip, and it will listen all ip(*:port).\n");
@@ -158,7 +157,6 @@ int check_param() {
 	return 1;
 }
 int main(int argc, char *argv[]) {
-
 	if (argc < 3) {
 		printf("maybe you are input error\n");
 		help();

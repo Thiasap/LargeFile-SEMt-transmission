@@ -30,6 +30,12 @@
     <ClCompile Include="cryptions.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="sha256.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="aes.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fConfig.h">
@@ -45,6 +51,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Cryptions.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="sha256.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aes.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
