@@ -1,4 +1,9 @@
 #ifndef _SERVER_H
 #define _SERVER_H
-extern void zrecv();
+#pragma pack(1)
+#include <zmq.h>
+#include <stdio.h>
+#include"zhelpers.h"
+#include"fConfig.h"
+void zrecv(argv_info * info);
 #endif

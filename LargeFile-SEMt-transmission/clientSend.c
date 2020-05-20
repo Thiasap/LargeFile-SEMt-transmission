@@ -127,7 +127,7 @@ void zzsend(int split_index) {
 		long nowIndex;//当前读取位置
 		unsigned int endSize = file.spliteSize;//剩余应读取的字节
 		if (split_index == splits - 1) endSize = file.filesize%file.spliteSize;
-		struct packInfo packinfo;
+		packInfo packinfo;
 		char info[sizeof(packinfo)];
 		while (1) {
 			packinfo.isAllend = 0;

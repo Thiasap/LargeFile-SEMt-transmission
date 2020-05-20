@@ -24,10 +24,10 @@
     <ClCompile Include="receiver.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="clientSend.c">
+    <ClCompile Include="fConfig.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="serverRecv.c">
+    <ClCompile Include="cryptions.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,11 +44,11 @@
     <ClInclude Include="server.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="clientSend.h">
+    <ClInclude Include="Cryptions.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="serverRecv.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

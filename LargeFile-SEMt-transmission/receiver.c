@@ -1,9 +1,4 @@
-#pragma pack(1)
-#include <zmq.h>
-#include <stdio.h>
-#include"zhelpers.h"
 #include"server.h"
-#include"fConfig.h"
 FILE *rF;
 void *context;
 struct sFile file;
@@ -41,17 +36,24 @@ void z_recv(FILE *recvF) {
 
 	}
 	fclose(recvF);
-	zmq_close(sink);
-	zmq_ctx_destroy(context);
 	printf("[server]recv end\n");
 	return 0;
 }
-void zrecv() {
-	context = zmq_ctx_new();
-	//  用于发送开始信号的套接字
-	sink = zmq_socket(context, ZMQ_REP);
-	pAddr = "tcp://*:5558";
+
+void ready_recv(argv_info * info) {
+
+	char protocol[] = "tcp://";
+	int pAddrSize = strlen(protocol) + strlen(info->ip) + strlen(info->port) + 2;
+	char *pAddr = (char *)malloc(pAddrSize);
+	memset(pAddr, 0, pAddrSize);
+	memcpy(pAddr, protocol, strlen(protocol) + 1);
+	strcat(pAddr, info->ip);
+	pAddr[strlen(pAddr)] = ':';
+	pAddr[strlen(pAddr) + 1] = 0;
+	strcat(pAddr, info->port);
+	//pAddr = "tcp://*:5558";
 	zmq_bind(sink, pAddr); 
+	printf("[server]Listening at port %s...\n", info->port);
 	char *pf;
 	pf = (char *)malloc(sizeof(file));
 	zmq_recv(sink, pf, sizeof(file), 0);
@@ -65,6 +67,7 @@ void zrecv() {
 		return 0;
 	}
 	printf("[server]recv file name: %s\n", file.filename);
+	printf("[server]file size: %d\n", file.filesize);
 	//reply
 	s_send(sink, file.filename);
 	char *tmp = (char*)malloc(sizeof(file.filename));
@@ -84,4 +87,18 @@ void zrecv() {
 	z_recv(rF);
 	//
 
+}
+void zrecv(argv_info * info) {
+	if ((context = zmq_ctx_new()) == NULL)
+		return 0;
+	//  用于发送开始信号的套接字
+	if ((sink = zmq_socket(context, ZMQ_REP)) == NULL) {
+		zmq_ctx_destroy(context);
+		return 0;
+	}
+	while (1) {
+		ready_recv(info);
+	}
+	zmq_close(sink);
+	zmq_ctx_destroy(context);
 }

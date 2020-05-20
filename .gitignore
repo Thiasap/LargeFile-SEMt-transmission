@@ -259,3 +259,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/LargeFile-SEMt-transmission/Data/100M
+/LargeFile-SEMt-transmission/Data/1M
+/LargeFile-SEMt-transmission/Data/1G
+/LargeFile-SEMt-transmission/Data/10M
+/LargeFile-SEMt-transmission/Recv_1m

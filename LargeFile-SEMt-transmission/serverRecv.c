@@ -2,14 +2,10 @@
 #include "serverRecv.h"
 FILE *rF;
 struct sFile file;
-pthread_mutex_t *file_lock;
-pthread_mutex_t *printf_lock;
 pthread_mutex_t *sended_lock;	//发送块标记锁
 char *sended;					//发送块标记
 double time_start, markTime;	//开始时间，上次获得的时间
-pthread_mutex_t *recvsize[3];	//已接收数据大小变量锁
-int recv_kmg[3];				//已接收数据大小
-int threadExit;
+pthread_mutex_t *recvsize[3];	//已接收数据大小变量锁=
 int byte2int(char *buf) {
 	int a;
 	char *tint = &a;
@@ -38,15 +34,7 @@ int init_recver(void * frontend) {
 		printf("[server]stop because open file err\n");
 		return 0;
 	}
-	threadExit = 0;
-	//初始化锁
-	pthread_mutex_init(file_lock, NULL);
 	pthread_mutex_init(sended_lock, NULL);
-	pthread_mutex_init(printf_lock, NULL);
-	for (int i = 0; i < 3; i++) {
-		recv_kmg[i] = 0;
-		pthread_mutex_init(&recvsize[i], NULL);
-	}
 	return 1;
 }
 void recver(void *context) {
@@ -56,11 +44,10 @@ void recver(void *context) {
 	void *responder = zmq_socket(context, ZMQ_REP);
 	zmq_bind(responder, "tcp://*:5559");
 	//zmq_connect(responder, "inproc://workers");
-	zmq_msg_t message;
 	char buffer[FILE_FRAME_SIZE] = { 0 };
 	char msg_buffer[FILE_FRAME_SIZE + MARK_SIZE];
 	long index_fseek=0;
-	struct packInfo packinfo;
+	packInfo packinfo;
 	char info[sizeof(packinfo)];
 	while (1) {
 		//zmq_msg_init(&message);
@@ -72,27 +59,7 @@ void recver(void *context) {
 		//int size = zmq_msg_size(&message);
 		int size = packinfo.size;
 		printf("[server]recv size %d\n", size);
-		//memset(msg_buffer, 0, sizeof(msg_buffer));			//初始化msg_buffer
-		//memcpy(msg_buffer, zmq_msg_data(&message), size);	//将zmq的数据存入msg_buffer
-		//zmq_msg_close(&message);
-		//if (msg_buffer[0] == 0) break;
-		//index_fseek = byte2int(msg_buffer);
-		////memcpy(&index_fseek, msg_buffer, sizeof(long));		//提取index标记
-		//if (size == MARK_SIZE) {
-		//	int flag = 0;
-		//	for (int i = 0; i < MARK_SIZE; i++) {
-		//		flag += msg_buffer[i] == -1 ? 1 : 0;
-		//	}
-		//	if (flag==4){
-		//		//pthread_mutex_lock(printf_lock);
-		//		printf("[server]Thread exit, because all sended by marksign\n");
-		//		return;
-		//	}
-		//}
-		////跳过标记之后就是文件数据
-		//memcpy(buffer, msg_buffer+ MARK_SIZE, sizeof(buffer));
 		//开始写入
-		//pthread_mutex_lock(file_lock);
 		index_fseek = packinfo.index;
 		fseek(rF, index_fseek, SEEK_SET);
 		fwrite(buffer, sizeof(char), sizeof(packinfo.size), rF);
@@ -103,9 +70,6 @@ void recver(void *context) {
 	zmq_close(responder);
 	fflush(rF);
 	fclose(rF);
-	threadExit++;
-	return 0;
-
 }
 void rrbroker() {
 	void *context = zmq_ctx_new();
@@ -171,10 +135,7 @@ void rrbroker() {
 	zmq_close(frontend);
 	zmq_close(backend);
 	zmq_ctx_destroy(context);
-	pthread_mutex_destroy(&sended_lock);
-	pthread_mutex_destroy(&printf_lock);
-	for (int i = 0; i < 3; i++) {
-		pthread_mutex_destroy(&recvsize[i]);
-	}
+	pthread_mutex_destroy(sended_lock);
+
 	return 0;
 }
