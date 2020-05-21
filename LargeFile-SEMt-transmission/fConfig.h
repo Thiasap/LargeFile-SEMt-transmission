@@ -29,7 +29,7 @@ typedef struct filebuf {
 	short mark;
 	int size;
 	char splitEnd;
-	char buff[FILE_FRAME_SIZE];
+	char buff[FILE_FRAME_SIZE+16];
 }filebuf;
 
 typedef struct argv_info {
@@ -43,8 +43,14 @@ typedef struct argv_info {
 	char filename[128];	//-f
 	char filepath[128];
 }argv_info;
+typedef struct crypt_buffer {
+	int size;
+	char buff[FILE_FRAME_SIZE + 16];
+}crypt_buffer;
 int getMem();
 DWORD GetProcessorCoreCount();
 int Str2Int(char * buff);
 void split_ip_port(char *p);
+
+void phex(uint8_t* str);
 #endif

@@ -167,9 +167,10 @@
   <ItemGroup>
     <ClCompile Include="aes.c" />
     <ClCompile Include="cryptions.c" />
+    <ClCompile Include="des_3des.c" />
     <ClCompile Include="fConfig.c" />
-    <ClCompile Include="sender.c" />
     <ClCompile Include="LargeFile-SEMt-transmission.c" />
+    <ClCompile Include="sender.c" />
     <ClCompile Include="receiver.c" />
     <ClCompile Include="sha256.c" />
   </ItemGroup>
@@ -177,6 +178,7 @@
     <ClInclude Include="aes.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="Cryptions.h" />
+    <ClInclude Include="des_3des.h" />
     <ClInclude Include="fConfig.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="sha256.h" />

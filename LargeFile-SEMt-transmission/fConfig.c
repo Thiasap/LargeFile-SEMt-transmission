@@ -1,6 +1,12 @@
 #pragma pack(1)
 #include"fConfig.h"
-
+void phex(uint8_t* str) {
+	uint8_t len = 32;
+	unsigned char i;
+	for (i = 0; i < len; ++i)
+		printf("%.2x", str[i]);
+	printf("\n");
+}
 int getMem() {
 	MEMORYSTATUSEX mstx;
 	mstx.dwLength = sizeof(mstx);

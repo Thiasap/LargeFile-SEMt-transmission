@@ -7,6 +7,8 @@
 #include "client.h"
 #include"fConfig.h"
 #include"sha256.h"
+#include "aes.h"
+#include"aes.h"
 //#include"clientSend.h"
 //#include "serverRecv.h"
 argv_info param; 
@@ -52,7 +54,7 @@ void help() {
 	printf("\t\t-r run as receiver and receive file,if you don't set filename, it will be set add \"Recv_\" before default name.\n");
 	printf("\t\t-s run as sender and send file.\n");
 	printf("\t\t\tconnect_ip is your friend's ip and port is his port\n");
-	printf("\t\tAES, DES, 3DES, RC2, RC4\n");
+	printf("\t\t1-3, AES-(128/192/256)-cbc, DES, 3DES, RC2, RC4\n");
 	printf("PLEASE negotiate the password by OTHER SAFE means.\n");
 	printf("You need set AT LEAST ip, port and file.\n");
 	printf("If you are receiver, you cat don't set ip, and it will listen all ip(*:port).\n");
@@ -61,7 +63,6 @@ void help() {
 }
 //return 0:error, 1: -x, 2: get parameter end;
 int dealwith_param(char *p) {
-	int flag = 0;
 	if (strcmp("-r", p) == 0) { 
 		param.work_mode = 'r';
 		return 2;
@@ -147,7 +148,7 @@ int check_param() {
 	if (param.crypt_mode > 0 && param.crypt_mode<=CRYPT_MODES) {
 		if (strlen(param.passwd) == 0)return 0;
 	}
-	GetProcessorCoreCount();
+	//GetProcessorCoreCount();
 	if (param.work_mode == 's') {
 		if(strlen(param.filename) == 0 || param.ip[0] == '*') return 0;
 		if (param.threadnum == 0) {
@@ -156,7 +157,63 @@ int check_param() {
 	}
 	return 1;
 }
+void test(int tesa) {
+	DWORD outlen;
+	unsigned char in[] = { "asdfgh" };
+	unsigned char out_data[32];
+	unsigned char in_data[32];
+	UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
+	InitializePrivateKey(32, key);
+	outlen = AesEncrypt(in, 6, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	phex(out_data);
+	Sleep(2000);
+	outlen = AesDecrypt(out_data, 16, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	printf("1 %s\n", in_data);
+}void test2(int tesa) {
+	Sleep(1000);
+	DWORD outlen;
+	unsigned char in[] = { "asdfgh22" };
+	unsigned char out_data[32];
+	unsigned char in_data[32];
+	UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
+	InitializePrivateKey(32, key);
+	outlen = AesEncrypt(in, 6, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	phex(out_data);
+	outlen = AesDecrypt(out_data, 16, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	printf("2 %s\n", in_data);
+}
 int main(int argc, char *argv[]) {
+
+	//pthread_t asd,asd2;
+	//int pa = 123;
+	//int ret3 = pthread_create(&asd, NULL, test, pa);
+	//if (ret3 != 0)
+	//{
+	//	printf("pthread_create error: error_code=%d", ret3);
+	//}
+	//int pa2 = 13;
+	//int ret = pthread_create(&asd2, NULL, test2, pa2);
+	//if (ret != 0)
+	//{
+	//	printf("pthread_create error: error_code=%d", ret);
+	//}
+	//Sleep(6000);
+	//return 0;
+	//DWORD outlen;
+	//unsigned char in[] = "a8sczvvasdwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczasczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pIzvvasdvwag1541asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv8E1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45";
+	//;
+	//printf("in len %d size %d\n", strlen(in),sizeof(in));
+	//unsigned char out_data[10240];
+	//unsigned char in_data[10240];
+	//UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
+	//InitializePrivateKey(32, key);
+	//outlen = AesEncrypt(in, 10240, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	//phex(out_data);
+	//printf("outdata len %d\n",outlen);
+	//outlen = AesDecrypt(out_data, outlen, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
+	//printf("o %s", in_data);
+	////UART4_Send_Data(in_data,6);
+	//return 0;
 	if (argc < 3) {
 		printf("maybe you are input error\n");
 		help();

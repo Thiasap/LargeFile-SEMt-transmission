@@ -1,5 +1,6 @@
 #pragma pack(1)
 #include"client.h"
+#include"Cryptions.h"
 FILE* sF;
 void *context;
 struct sFile file;
@@ -11,7 +12,7 @@ pthread_mutex_t sended_lock,readfile;
 pthread_t *pt;
 int thread_lock;
 int *ptid;
-char *pwd;	//密码
+char pwd[65];	//密码
 char Recv_all;
 char *pAddr;
 
@@ -44,11 +45,14 @@ int read_file_frame(char* filename, int pos, char* buffer, int length) {
 	//fclose(sF);
 	return size;
 }
-
+void pri(int q) {
+	printf("%d\n", q);
+	
+}
 void zsend(int thread_index) {
+	//Sleep(5000);
+	//return;
 	short p_id = thread_index;
-	if (thread_index == 199)
-		Sleep(1000);
 	//  发送结果的套接字
 	void *sender = zmq_socket(context, ZMQ_REQ);
 	zmq_connect(sender, pAddr);
@@ -69,20 +73,30 @@ void zsend(int thread_index) {
 		char flag = 0;
 		//Sleep(3000);
 		while (1) {
-			memset(buffer, 0, sizeof buffer);
+			memset(buffer, 0, sizeof (buffer));
 			int size;
 			next_readS = FILE_FRAME_SIZE < i_e ? FILE_FRAME_SIZE : i_e;
 			size = read_file_frame(file.filename, pos, buffer, next_readS);
-			//if(thread_index<2)
-			//	printf("[client]\t\t\t\t\t\t\t threadindex=%d pos=%d i_e=%d next=%d\n",thread_index,pos,i_e,next_readS);
+			fbuf.size = size;
 			fbuf.index = pos;
-			memcpy((fbuf.buff), buffer, size);
-			//printf("\t\t\t\t\t\t\tss %d %d %d %d pos ftell %d pos %d\n", fbuf.buff[0], fbuf.buff[1], fbuf.buff[2], fbuf.buff[3], pos, fbuf.index);
+			if (file.useCrypt != 0) {
+				crypt_buffer cb;
+				memcpy(cb.buff, buffer, size);
+				cb.size = size;
+				//printf("before encrypt: %s\n",cb.buff);
+				//phex(cb.buff);
+				Encrypt(&cb, pwd,file.useCrypt);/*
+				printf("after encrypt: \n");
+				phex(cb.buff);*/
+				memcpy(fbuf.buff, cb.buff, cb.size);
+				fbuf.size = cb.size;
+			}
+			else memcpy((fbuf.buff), buffer, size);
+			
 			pos += size;
 			//减去已读取的大小
 			i_e -= size;
 			if (size == FILE_FRAME_SIZE) {
-				fbuf.size = size;
 				zmq_send(sender, &fbuf, sizeof(filebuf), 0);
 				s_recv(sender);
 				cupdateTime(size);
@@ -113,7 +127,7 @@ void zsend(int thread_index) {
 				}
 				pthread_mutex_unlock(&sended_lock);
 				printf("[client]sended %d bytes\n", pos);
-				fbuf.size = size;
+				//fbuf.size = size;
 				fbuf.splitEnd = 1;
 				int rc = zmq_send(sender, &fbuf, sizeof(filebuf), 0);
 				//if (pos == 245760) {
@@ -149,7 +163,7 @@ void zsend(int thread_index) {
 		//线程退出
 	}
 }
-void sender_init(argv_info *info) {
+int sender_init(argv_info *info) {
 	//Sleep(3000);
 	//发送的数据信息大小初始化
 	for (int i = 0; i < 3; i++) {
@@ -181,8 +195,7 @@ void sender_init(argv_info *info) {
 	file.threadNum = info->threadnum;
 	file.useCrypt = info->crypt_mode;
 	if (file.useCrypt != 0) {
-		pwd = (char *)malloc(strlen(info->passwd) + 1);
-		memcpy(pwd, info->passwd, strlen(info->passwd) + 1);
+		memcpy(pwd, StrSHA256(info->passwd, strlen(info->passwd)),65);
 	}
 	char *fullpath = malloc(strlen(info->filepath) + strlen(info->filename) + 1);
 	memcpy(fullpath, info->filepath, strlen(info->filepath) + 1);
@@ -227,10 +240,14 @@ void sender_init(argv_info *info) {
 	if (replay == "") return;
 	//printf("[client]server reply: %s\n",replay);
 	Recv_all = 0;
+	return 1;
 }
 void allsend(argv_info *info) {
 	//初始化一下参数
-	sender_init(info);
+	if (sender_init(info)==0) {
+		printf("init failed!\n");
+		return 0;
+	}
 	pthread_mutex_init(&sended_lock, NULL); 
 	pthread_mutex_init(&readfile, NULL); 
 	thread_lock = file.threadNum;
@@ -238,12 +255,12 @@ void allsend(argv_info *info) {
 	QueryPerformanceFrequency(&CPU_fre);
 	QueryPerformanceCounter(&start_time);
 	mark_time = start_time;
+
 	//马上开始线程
 	for (int mthread = 0; mthread < file.threadNum; mthread++) {
 		ptid[mthread] = pthread_create(&pt[mthread], NULL, zsend, mthread);
 		pthread_join(pt[mthread], NULL);
 	}
-	//Sleep(50000);
 	printf("%d %f %f\n", file.filesize,
 		((double)sended_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart * 1000,
 		((double)recv_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart * 1000);
