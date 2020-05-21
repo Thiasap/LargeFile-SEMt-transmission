@@ -54,7 +54,7 @@ void help() {
 	printf("\t\t-r run as receiver and receive file,if you don't set filename, it will be set add \"Recv_\" before default name.\n");
 	printf("\t\t-s run as sender and send file.\n");
 	printf("\t\t\tconnect_ip is your friend's ip and port is his port\n");
-	printf("\t\t1-3, AES-(128/192/256)-cbc, DES, 3DES, RC2, RC4\n");
+	printf("\t\t1-3, AES-(128/192/256)-cbc, 4,DES, 5,3DES\n");
 	printf("PLEASE negotiate the password by OTHER SAFE means.\n");
 	printf("You need set AT LEAST ip, port and file.\n");
 	printf("If you are receiver, you cat don't set ip, and it will listen all ip(*:port).\n");
@@ -183,7 +183,40 @@ void test(int tesa) {
 	printf("2 %s\n", in_data);
 }
 int main(int argc, char *argv[]) {
+#if 0
+	char buffer[]="Kk7NhVtZFXgjoES6HrFxonUFcxaw4Ay0e0weyDx8u7g0vAZa3BXAQcQcGaKRuXpYr63iogafiMIyTWMWfTHJFEUdQvqYYeHctA745EkUObuW05cIdXpvdqNslcjd2QoJpFr4kGYV76CyPja7px1d5rUNlcAHhXoSs9yofMpO2XUm6zai6neGAAMbCra7g92B82QRaFDDZ25MGaxZfa2Qd3YHmYLPKnYVEKHrdwskrtiqtUy3fK3im2oaLluegwdJfc3sbPsGAigOuKFy90EZVjAS2xAoFj0scBCbC2qoYYl7OdqHPVHnaYvzqnsYL4B2YtwIL0KvytzNnofzpsKsl2VuThDrj1MeBi8vsGByhMNXCrs6LytKzpv5tfEU2sg34DLTgiz2ZTMOLvzufWSjMaJopI8KcymzqWTTruXlmab0Obd61cOOnUay3cmoMxrM0DnnI2FUG2lxuZQmyZ4VvsZspjuUQgtlspSC9JRDUmIDkXYOr7BochGXfuHJzO1b41osWbHkB4aMRZqabNEr6xMID4KPfgzWGlalKcVQUe26jDoO40ZAykzxtF1E4JnIe8m51ZRfAj7IHP5LA2JbV9wDnQ56BprgBCW3292OdvhIPcxHNCLOFAOgf7U0g8HGIHaU5pWvgeruqFDk1Ja9bMS56KzWmbbnzjnlyGPJtvwzmJ1Rz0YNlNbA7MBLjzQXhmZRFZ4orJW3bnQwLfIJOOyGpXXa8qBFlezJUl71qJZ3Vlmt4lhGqYOGCWkR8Ul6JOw9R5TPfWnZX7nm7FeXbfr9zIeRIhRgH56oeJDjOavLK3shpfJxoZWUSRL6oIX1UDJT5U3B7wV86CMAIkOWLbTHrNhgzBfapPlEwBh9x2kZHqUTz4hgQNv22X4roca1gZKTDGVrUi1NGB9AmIrEAdnJJdgRKfR8gTEkeg2rr8BC4lTQpT40doXfVJSj382zQNAp0AYgy6LcUBO4o8SzEjiagLPQraTTKDvIQDF1bMUi5UZ3cKX1cg0Wz39Cbln";
+	char key[] = "6ObE25XBPnzMAUM9bH29sLkp9q0LLAN8Ic9RCjIR3P39unEG0SIfWVfalzSwjBxQ";
+	printf("buffer len %d  key len %d\n", strlen(buffer), strlen(key));
+	int len = 8;//dex
+	UCHAR *dkey = (char*)malloc(len + 1);
+	memcpy(dkey, key, len + 1);
+	dkey[len + 1] = 0;
+	int size = sizeof(buffer);
+	unsigned char *out = (unsigned char*)malloc(size);
+	memset(out, 0, size);
 
+	printf("before encrypt: \n");
+	phex(buffer);
+	phexe(buffer);
+	des_encrypt(key, len, buffer, out,size/8);
+	printf("after encrypt: \n\n");
+	phex(out);
+	phexe(out);
+	des_decrypt(key, len, out, buffer, size/8);
+	printf("after decrypt: \n\n" );
+	phex(buffer);
+	phexe(buffer);
+
+	des_encrypt(key, len*2, buffer, out, size / 8);
+	printf("after 3encrypt: \n\n");
+	phex(out);
+	phexe(out);
+	des_decrypt(key, len*2, out, buffer, size / 8);
+	printf("after 3decrypt: \n\n");
+	phex(buffer);
+	phexe(buffer);
+	return 0;
+#endif
 	//pthread_t asd,asd2;
 	//int pa = 123;
 	//int ret3 = pthread_create(&asd, NULL, test, pa);

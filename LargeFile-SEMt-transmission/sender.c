@@ -264,9 +264,6 @@ void allsend(argv_info *info) {
 	printf("%d %f %f\n", file.filesize,
 		((double)sended_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart * 1000,
 		((double)recv_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart * 1000);
-	/*printf("Send file size: %d, use time: %fms, receive use time: %fms\n", file.filesize,
-		((double)sended_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart*1000,
-		((double)recv_time.QuadPart - (double)start_time.QuadPart) / (double)CPU_fre.QuadPart*1000);*/
 	zmq_ctx_destroy(context);
 	fclose(sF);
 	return 0;

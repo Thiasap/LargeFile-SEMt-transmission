@@ -7,6 +7,12 @@ void phex(uint8_t* str) {
 		printf("%.2x", str[i]);
 	printf("\n");
 }
+void phexe(uint8_t* str) {
+	int i;
+	for (i = 1024-32; i < 1024; ++i)
+		printf("%.2x", str[i]);
+	printf("\n");
+}
 int getMem() {
 	MEMORYSTATUSEX mstx;
 	mstx.dwLength = sizeof(mstx);

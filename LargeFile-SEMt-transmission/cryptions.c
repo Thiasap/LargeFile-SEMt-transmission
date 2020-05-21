@@ -8,65 +8,90 @@ void Encrypt(crypt_buffer *cb , char *pwd, int mode) {
 	char *tmp = (char *)malloc(size);
 	memcpy(tmp, cb->buff,size);
 	int len = 0;
-	if (mode >= 1&&mode<=3) {
+	if (mode >= 1&&mode<=5) {
 		switch (mode){
-		case 1:
+		case 1:			//AES-128-cbc
 			len = 16;
 			break;
-		case 2:
+		case 2:			//AES-192-cbc
 			len = 24;
 			break;
-		case 3:
+		case 3:			//AES-256-cbc
 			len = 32;
+			break;
+		case 4:			//DES
+			len = 8;
+			break;
+		case 5:			//3DES
+			len = 16;
 			break;
 		default:
 			break;
 		}
-		DWORD outlen;
-		unsigned char *out_data= (unsigned char*)malloc((size/16+1)*16);
-		UCHAR *key = (char*)malloc(len + 1);
-		memcpy(key, pwd, len+1);
-		key[len + 1] = 0;
-		InitializePrivateKey(len, key);
-		//printf("en key len:%d  key: %s\nkey hex: ", len, key);
-		//phex(key);
-		outlen = AesEncrypt(tmp, size, out_data);
-		cb->size = outlen;
-		memcpy(cb->buff, out_data, outlen);
+		unsigned char *out_data;
+		UCHAR *key = (char*)malloc(len);
+		memcpy(key, pwd, len);
+		if (mode >= 1 && mode <= 3) {
+			DWORD outlen;
+			out_data = (unsigned char*)malloc((size / 16 + 1) * 16);
+			InitializePrivateKey(len, key);
+			outlen = AesEncrypt(tmp, size, out_data);
+			cb->size = outlen;
+			memcpy(cb->buff, out_data, outlen);
+			return;
+		}
+		else if (mode <= 5) {
+			out_data = (unsigned char*)malloc(size);
+			des_encrypt(key, len, tmp, out_data, (size + 8 - 1) / 8);
+			memcpy(cb->buff, out_data, size);
+			return;
+		}
 	}
+
 }
 void Decrypt(crypt_buffer *cb, char *pwd, int mode) {
-	//printf("de pwd %s\n", pwd);
-	
 	int size = cb->size;
 	char *tmp = (char *)malloc(size);
 	memcpy(tmp, cb->buff, size);
 	int len = 0;
-	if (mode >= 1 && mode <= 3) {
+	if (mode >= 1 && mode <= 5) {
 		switch (mode) {
-		case 1:
+		case 1:			//AES-128-cbc
 			len = 16;
 			break;
-		case 2:
+		case 2:			//AES-192-cbc
 			len = 24;
 			break;
-		case 3:
+		case 3:			//AES-256-cbc
 			len = 32;
+			break;
+		case 4:			//DES
+			len = 8;
+			break;
+		case 5:			//3DES
+			len = 16;
 			break;
 		default:
 			break;
 		}
-		DWORD outlen;
-		unsigned char *out_data = (unsigned char*)malloc((size / 16 + 1) * 16);
-		UCHAR *key = (char*)malloc(len + 1);
-		memcpy(key, pwd, len + 1);
-		key[len + 1] = 0;
-		InitializePrivateKey(len, key);
-		//printf("de key len:%d  key: %s\nkey hex: ", len,key);
-		//phex(key);
-		outlen = AesDecrypt(tmp, size, out_data);
-		//phex(out_data);
-		cb->size = outlen;
-		memcpy(cb->buff, out_data, outlen);
+		unsigned char *out_data;
+		UCHAR *key = (char*)malloc(len);
+		memcpy(key, pwd, len);
+		if (mode >= 1 && mode <= 3) {
+			DWORD outlen;
+			out_data = (unsigned char*)malloc((size / 16 + 1) * 16);
+			InitializePrivateKey(len, key);
+			outlen = AesDecrypt(tmp, size, out_data);
+			cb->size = outlen;
+			memcpy(cb->buff, out_data, outlen);
+			return;
+		}else if (mode <= 5) {
+			out_data = (unsigned char*)malloc(size);
+			des_decrypt(key, len, tmp, out_data, (size+8-1) / 8);
+			memcpy(cb->buff, out_data, size);
+			return;
+		}
+
+
 	}
 }
