@@ -38,14 +38,16 @@ void Encrypt(crypt_buffer *cb , char *pwd, int mode) {
 			outlen = AesEncrypt(tmp, size, out_data);
 			cb->size = outlen;
 			memcpy(cb->buff, out_data, outlen);
-			return;
 		}
 		else if (mode <= 5) {
 			out_data = (unsigned char*)malloc(size);
 			des_encrypt(key, len, tmp, out_data, (size + 8 - 1) / 8);
 			memcpy(cb->buff, out_data, size);
-			return;
 		}
+		free(tmp);
+		free(out_data);
+		free(key);
+		return;
 	}
 
 }
@@ -84,14 +86,14 @@ void Decrypt(crypt_buffer *cb, char *pwd, int mode) {
 			outlen = AesDecrypt(tmp, size, out_data);
 			cb->size = outlen;
 			memcpy(cb->buff, out_data, outlen);
-			return;
 		}else if (mode <= 5) {
 			out_data = (unsigned char*)malloc(size);
 			des_decrypt(key, len, tmp, out_data, (size+8-1) / 8);
 			memcpy(cb->buff, out_data, size);
-			return;
 		}
-
-
+		free(tmp);
+		free(out_data);
+		free(key);
+		return;
 	}
 }

@@ -1,6 +1,4 @@
-﻿// LargeFile-SEMt-transmission.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-#include <zmq.h>
+﻿#include <zmq.h>
 #include <pthread.h>
 #include "zhelpers.h"
 #include "server.h"
@@ -9,9 +7,10 @@
 #include"sha256.h"
 #include "aes.h"
 #include"aes.h"
-//#include"clientSend.h"
-//#include "serverRecv.h"
-argv_info param; 
+argv_info param;
+char lastparam[3];//上一个参数-l/-p/-t等，用于决定下一个参数的类型
+//输入的参数都是字符串，
+//分片大小和线程数需要转成Int型
 int Str2Int(char * buff) {
 	int num = 0;
 	int index = 0;
@@ -20,8 +19,8 @@ int Str2Int(char * buff) {
 	}
 	return num;
 }
-
-char lastparam[3]; void split_ip_port(char *p) {
+//将类似*:7997格式的IP和端口分开
+void split_ip_port(char *p) {
 	char *tmp;
 	for (int i = 0; i < strlen(p); i++) {
 		if (p[i] == ':') {
@@ -44,6 +43,7 @@ char lastparam[3]; void split_ip_port(char *p) {
 		}
 	}
 }
+//输出帮助信息
 void help() {
 	printf("Just support Windows\n");
 	printf("usage:\n");
@@ -61,7 +61,7 @@ void help() {
 	printf("If you use cryption, you must set password, and send the password to others.\n");
 	//r /-r -lp l/3  /-r -lp -f file/5 /-r -l l -p p/5
 }
-//return 0:error, 1: -x, 2: get parameter end;
+//获取ip port等参数并存入argv_info
 int dealwith_param(char *p) {
 	if (strcmp("-r", p) == 0) { 
 		param.work_mode = 'r';
@@ -136,6 +136,7 @@ int dealwith_param(char *p) {
 		param.threadnum = threads;
 	}
 }
+//检查参数正确性
 int check_param() {
 	if (param.work_mode != 'r' && param.work_mode != 's') return 0;
 	if (strlen(param.port) == 0) return 0;
@@ -157,96 +158,9 @@ int check_param() {
 	}
 	return 1;
 }
-void test(int tesa) {
-	DWORD outlen;
-	unsigned char in[] = { "asdfgh" };
-	unsigned char out_data[32];
-	unsigned char in_data[32];
-	UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
-	InitializePrivateKey(32, key);
-	outlen = AesEncrypt(in, 6, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	phex(out_data);
-	Sleep(2000);
-	outlen = AesDecrypt(out_data, 16, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	printf("1 %s\n", in_data);
-}void test2(int tesa) {
-	Sleep(1000);
-	DWORD outlen;
-	unsigned char in[] = { "asdfgh22" };
-	unsigned char out_data[32];
-	unsigned char in_data[32];
-	UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
-	InitializePrivateKey(32, key);
-	outlen = AesEncrypt(in, 6, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	phex(out_data);
-	outlen = AesDecrypt(out_data, 16, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	printf("2 %s\n", in_data);
-}
+
 int main(int argc, char *argv[]) {
-#if 0
-	char buffer[]="Kk7NhVtZFXgjoES6HrFxonUFcxaw4Ay0e0weyDx8u7g0vAZa3BXAQcQcGaKRuXpYr63iogafiMIyTWMWfTHJFEUdQvqYYeHctA745EkUObuW05cIdXpvdqNslcjd2QoJpFr4kGYV76CyPja7px1d5rUNlcAHhXoSs9yofMpO2XUm6zai6neGAAMbCra7g92B82QRaFDDZ25MGaxZfa2Qd3YHmYLPKnYVEKHrdwskrtiqtUy3fK3im2oaLluegwdJfc3sbPsGAigOuKFy90EZVjAS2xAoFj0scBCbC2qoYYl7OdqHPVHnaYvzqnsYL4B2YtwIL0KvytzNnofzpsKsl2VuThDrj1MeBi8vsGByhMNXCrs6LytKzpv5tfEU2sg34DLTgiz2ZTMOLvzufWSjMaJopI8KcymzqWTTruXlmab0Obd61cOOnUay3cmoMxrM0DnnI2FUG2lxuZQmyZ4VvsZspjuUQgtlspSC9JRDUmIDkXYOr7BochGXfuHJzO1b41osWbHkB4aMRZqabNEr6xMID4KPfgzWGlalKcVQUe26jDoO40ZAykzxtF1E4JnIe8m51ZRfAj7IHP5LA2JbV9wDnQ56BprgBCW3292OdvhIPcxHNCLOFAOgf7U0g8HGIHaU5pWvgeruqFDk1Ja9bMS56KzWmbbnzjnlyGPJtvwzmJ1Rz0YNlNbA7MBLjzQXhmZRFZ4orJW3bnQwLfIJOOyGpXXa8qBFlezJUl71qJZ3Vlmt4lhGqYOGCWkR8Ul6JOw9R5TPfWnZX7nm7FeXbfr9zIeRIhRgH56oeJDjOavLK3shpfJxoZWUSRL6oIX1UDJT5U3B7wV86CMAIkOWLbTHrNhgzBfapPlEwBh9x2kZHqUTz4hgQNv22X4roca1gZKTDGVrUi1NGB9AmIrEAdnJJdgRKfR8gTEkeg2rr8BC4lTQpT40doXfVJSj382zQNAp0AYgy6LcUBO4o8SzEjiagLPQraTTKDvIQDF1bMUi5UZ3cKX1cg0Wz39Cbln";
-	char key[] = "6ObE25XBPnzMAUM9bH29sLkp9q0LLAN8Ic9RCjIR3P39unEG0SIfWVfalzSwjBxQ";
-	printf("buffer len %d  key len %d\n", strlen(buffer), strlen(key));
-	int len = 8;//dex
-	UCHAR *dkey = (char*)malloc(len + 1);
-	memcpy(dkey, key, len + 1);
-	dkey[len + 1] = 0;
-	int size = sizeof(buffer);
-	unsigned char *out = (unsigned char*)malloc(size);
-	memset(out, 0, size);
 
-	printf("before encrypt: \n");
-	phex(buffer);
-	phexe(buffer);
-	des_encrypt(key, len, buffer, out,size/8);
-	printf("after encrypt: \n\n");
-	phex(out);
-	phexe(out);
-	des_decrypt(key, len, out, buffer, size/8);
-	printf("after decrypt: \n\n" );
-	phex(buffer);
-	phexe(buffer);
-
-	des_encrypt(key, len*2, buffer, out, size / 8);
-	printf("after 3encrypt: \n\n");
-	phex(out);
-	phexe(out);
-	des_decrypt(key, len*2, out, buffer, size / 8);
-	printf("after 3decrypt: \n\n");
-	phex(buffer);
-	phexe(buffer);
-	return 0;
-#endif
-	//pthread_t asd,asd2;
-	//int pa = 123;
-	//int ret3 = pthread_create(&asd, NULL, test, pa);
-	//if (ret3 != 0)
-	//{
-	//	printf("pthread_create error: error_code=%d", ret3);
-	//}
-	//int pa2 = 13;
-	//int ret = pthread_create(&asd2, NULL, test2, pa2);
-	//if (ret != 0)
-	//{
-	//	printf("pthread_create error: error_code=%d", ret);
-	//}
-	//Sleep(6000);
-	//return 0;
-	//DWORD outlen;
-	//unsigned char in[] = "a8sczvvasdwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczasczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pIzvvasdvwag1541asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv8E1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45asczvvasdvwag15416tn51gbx-=23t62&*(YH)(nifnsdv89pINFE1651tweeffOIUHfs8uw45";
-	//;
-	//printf("in len %d size %d\n", strlen(in),sizeof(in));
-	//unsigned char out_data[10240];
-	//unsigned char in_data[10240];
-	//UCHAR key[] = "qwerasdfzxcvtyuiqwerasdfzxcvtyui";
-	//InitializePrivateKey(32, key);
-	//outlen = AesEncrypt(in, 10240, out_data);//DWORD OnAesEncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	//phex(out_data);
-	//printf("outdata len %d\n",outlen);
-	//outlen = AesDecrypt(out_data, outlen, in_data);//DWORD OnAesUncrypt(LPVOID InBuffer,DWORD InLength,LPVOID OutBuffer)
-	//printf("o %s", in_data);
-	////UART4_Send_Data(in_data,6);
-	//return 0;
 	if (argc < 3) {
 		printf("maybe you are input error\n");
 		help();
@@ -263,9 +177,6 @@ int main(int argc, char *argv[]) {
 		help();
 		return 0;
 	}
-	//printf("mode: %c  ip: %s  port: %s  crypt: %d ", param.work_mode, param.ip, param.port, param.crypt_mode);
-	//if(param.passwd[0]!=0) printf("passwd: %s ", param.passwd);
-	//if (param.filename[0] != 0) printf("filename: %s  path: %s\n", param.filename, param.filepath);
 	if (param.work_mode == 'r') {	//receiver
 		zrecv(&param);
 	}
@@ -273,14 +184,5 @@ int main(int argc, char *argv[]) {
 		allsend(&param);
 	}
 	return 0;
-#if 0
-	pthread_t pRouter;
-	int ret3 = pthread_create(&pRouter, NULL, zrecv, &param);
-	if (ret3 != 0)
-	{
-		printf("pthread_create error: error_code=%d", ret3);
-	}
-	allsend(&param);
-	pthread_join(pRouter,NULL);
-#endif
+
 }

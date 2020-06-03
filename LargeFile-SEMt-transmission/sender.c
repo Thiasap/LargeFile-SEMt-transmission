@@ -15,8 +15,9 @@ int *ptid;
 char pwd[65];	//密码
 char Recv_all;
 char *pAddr;
-
-void cupdateTime(int size) {
+void *p_exit;
+//更新已发送的数据大小，大约200ms更新一次
+void cupdateTime(int size,int end) {
 	send_kmg[0] += size / 1024;
 	if (send_kmg[0] >= 1024) {
 		send_kmg[1]++;
@@ -28,12 +29,13 @@ void cupdateTime(int size) {
 	}
 	LARGE_INTEGER now_time;
 	QueryPerformanceCounter(&now_time);
-	double time_pass = ((double)now_time.QuadPart - (double)mark_time.QuadPart) / (double)CPU_fre.QuadPart;
-	if ( time_pass >=500) {
-		//printf("[client]%dG %dM %dK sended\n", send_kmg[2], send_kmg[1], send_kmg[0]);
+	double time_pass = ((double)now_time.QuadPart - (double)mark_time.QuadPart) / (double)CPU_fre.QuadPart*1000;
+	if (end==1|| time_pass >=200) {
+		printf("[client]%dG %dM %dK sended\n", send_kmg[2], send_kmg[1], send_kmg[0]);
 		mark_time = now_time;
 	}
 }
+//从信息块中读取一帧信息帧
 int read_file_frame(char* filename, int pos, char* buffer, int length) {
 	pthread_mutex_lock(&readfile);
 	fseek(sF, pos, SEEK_SET);
@@ -45,14 +47,10 @@ int read_file_frame(char* filename, int pos, char* buffer, int length) {
 	//fclose(sF);
 	return size;
 }
-void pri(int q) {
-	printf("%d\n", q);
-	
-}
+//线程执行的函数，负责发送文件、加密等操作
 void zsend(int thread_index) {
-	//Sleep(5000);
+	//Sleep(5000);100m 1m 100 1*index
 	//return;
-	short p_id = thread_index;
 	//  发送结果的套接字
 	void *sender = zmq_socket(context, ZMQ_REQ);
 	zmq_connect(sender, pAddr);
@@ -73,33 +71,30 @@ void zsend(int thread_index) {
 		char flag = 0;
 		//Sleep(3000);
 		while (1) {
-			memset(buffer, 0, sizeof (buffer));
+			memset(buffer, 0, FILE_FRAME_SIZE);
 			int size;
 			next_readS = FILE_FRAME_SIZE < i_e ? FILE_FRAME_SIZE : i_e;
 			size = read_file_frame(file.filename, pos, buffer, next_readS);
 			fbuf.size = size;
 			fbuf.index = pos;
 			if (file.useCrypt != 0) {
-				crypt_buffer cb;
-				memcpy(cb.buff, buffer, size);
-				cb.size = size;
-				//printf("before encrypt: %s\n",cb.buff);
-				//phex(cb.buff);
-				Encrypt(&cb, pwd,file.useCrypt);/*
-				printf("after encrypt: \n");
-				phex(cb.buff);*/
-				memcpy(fbuf.buff, cb.buff, cb.size);
-				fbuf.size = cb.size;
+				crypt_buffer *cb;
+				cb = (crypt_buffer*)malloc(sizeof(crypt_buffer));
+				memcpy(cb->buff, buffer, size);
+				cb->size = size;
+				Encrypt(cb, pwd,file.useCrypt);
+				memcpy(fbuf.buff, cb->buff, cb->size);
+				fbuf.size = cb->size;
+				free(cb);
 			}
 			else memcpy((fbuf.buff), buffer, size);
-			
 			pos += size;
 			//减去已读取的大小
 			i_e -= size;
 			if (size == FILE_FRAME_SIZE) {
 				zmq_send(sender, &fbuf, sizeof(filebuf), 0);
 				s_recv(sender);
-				cupdateTime(size);
+				cupdateTime(size,0);
 			}
 			else if (size < FILE_FRAME_SIZE) {
 				//当前分片读完了，标记一下
@@ -126,25 +121,21 @@ void zsend(int thread_index) {
 
 				}
 				pthread_mutex_unlock(&sended_lock);
-				printf("[client]sended %d bytes\n", pos);
+				//printf("[client]sended %d bytes\n", pos);
 				//fbuf.size = size;
 				fbuf.splitEnd = 1;
 				int rc = zmq_send(sender, &fbuf, sizeof(filebuf), 0);
-				//if (pos == 245760) {
-				//	printf("pos\n");
-				//}
-				//printf("          rc %d", rc);
 				char *p = s_recv(sender);
 				//int rsize = (int)*p;
-				cupdateTime(size);
+				cupdateTime(size,fbuf.mark);
 				if (flag > 0) {
 					break;	//进行下一个循环
 				}
 			}
 			//分片结束，线程还没退
+
 		}
 		if (flag == 2) {
-			//printf("[client]Thread %d has done all, will exit!\n", p_id);
 			while (thread_lock == 0 && Recv_all != 1) {
 				s_send(sender, "wait");
 				//printf("[client]Last thread waiting...\n");
@@ -162,7 +153,11 @@ void zsend(int thread_index) {
 		}
 		//线程退出
 	}
+
 }
+
+//初始化参数，包括构建套接字、计算分片大小、线程数、分片数等
+//对每个分片打上标记，未发送为0
 int sender_init(argv_info *info) {
 	//Sleep(3000);
 	//发送的数据信息大小初始化
@@ -188,18 +183,22 @@ int sender_init(argv_info *info) {
 		printf("zmq init error!\n");
 		return;
 	}
-	//context = zmq_ctx_new();
-	//printf("[client]Connecting %s ...\n", pAddr);
+	printf("[client]Connecting %s ...\n", pAddr);
 	zmq_connect(file_sender, pAddr);
 	memcpy(file.filename, info->filename, strlen(info->filename) + 1);
 	file.threadNum = info->threadnum;
 	file.useCrypt = info->crypt_mode;
+	//生成密码的SHA256
 	if (file.useCrypt != 0) {
 		memcpy(pwd, StrSHA256(info->passwd, strlen(info->passwd)),65);
 	}
 	char *fullpath = malloc(strlen(info->filepath) + strlen(info->filename) + 1);
 	memcpy(fullpath, info->filepath, strlen(info->filepath) + 1);
 	strcat(fullpath, file.filename);
+	//计算文件sha256
+	FileSHA256(fullpath, file.sha256);
+	file.sha256[sizeof(file.sha256) - 1] = 0;
+	printf("Send File SHA256: \n%s\n",file.sha256);
 	sF = fopen(fullpath, "rb");
 	if (NULL == sF) {
 		printf("[client]fopen \"%s\" failed!\n",file.filename);
@@ -213,19 +212,24 @@ int sender_init(argv_info *info) {
 		printf("[client]read file size error!\n");
 		return;
 	}
+	
 	//初始化file信息
-	if((info->SplitSize) == 0)
+	file.spliteSize = info->SplitSize;
+	if ((info->SplitSize) == 0) {
 		file.spliteSize = 40960;
-	else {
-		int max = getMem();
-		file.spliteSize = info->SplitSize< max ? info->SplitSize: max;
+		if(FILESIZE>= 5242880)		//5M
+			file.spliteSize = FILESIZE+50/40;
+		else(FILESIZE >= 104857600);	//100M
+			file.spliteSize = 5242880;
 	}
+	int max = getMem()/2;
+	//避免分片太大
+	file.spliteSize = file.spliteSize < max ? file.spliteSize : max;
 	file.filesize = FILESIZE;
 	file.mark = 111;
 	//计算分块并标记为未发送（0）
 	splits = ((file.filesize + file.spliteSize - 1) / file.spliteSize);
 	file.threadNum = splits < file.threadNum ? splits : file.threadNum;
-	//printf("filesize = %d splitesize = %d splits num=%d\n", file.filesize, file.spliteSize,splits);
 
 	sended = (char *)malloc(splits * sizeof(char));
 	memset(sended, 0, splits);
@@ -238,10 +242,11 @@ int sender_init(argv_info *info) {
 	//recv reply
 	char * replay = s_recv(file_sender);
 	if (replay == "") return;
-	//printf("[client]server reply: %s\n",replay);
+	printf("[client]server reply: %s\n",replay);
 	Recv_all = 0;
 	return 1;
 }
+//执行初始化，标记线程开始时间，随后开始线程
 void allsend(argv_info *info) {
 	//初始化一下参数
 	if (sender_init(info)==0) {
@@ -255,7 +260,6 @@ void allsend(argv_info *info) {
 	QueryPerformanceFrequency(&CPU_fre);
 	QueryPerformanceCounter(&start_time);
 	mark_time = start_time;
-
 	//马上开始线程
 	for (int mthread = 0; mthread < file.threadNum; mthread++) {
 		ptid[mthread] = pthread_create(&pt[mthread], NULL, zsend, mthread);

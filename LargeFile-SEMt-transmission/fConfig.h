@@ -13,9 +13,10 @@
 typedef struct sFile {
 	char mark;
 	short threadNum;		//线程数
-	int spliteSize;//分片大小单位Bytes
+	int spliteSize;			//分片大小单位Bytes
 	unsigned int filesize;	//文件大小
 	short useCrypt;			//加密方式
+	char sha256[65];
 	char filename[128];		//文件名
 	char filepath[128];
 }sFile;
@@ -29,9 +30,8 @@ typedef struct filebuf {
 	short mark;
 	int size;
 	char splitEnd;
-	char buff[FILE_FRAME_SIZE+16];
+	char buff[FILE_FRAME_SIZE + 16];
 }filebuf;
-
 typedef struct argv_info {
 	char work_mode;		//-r
 	char ip[16];		//-l

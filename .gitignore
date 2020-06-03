@@ -264,7 +264,7 @@ __pycache__/
 /LargeFile-SEMt-transmission/Data/1G
 /LargeFile-SEMt-transmission/Data/10M
 /LargeFile-SEMt-transmission/Recv_1m
-/LargeFile-SEMt-transmission/Recv_100m
+/LargeFile-SEMt-transmission/Recv_*
 /LargeFile-SEMt-transmission/bakup_unuse/serverRecv.h
 /LargeFile-SEMt-transmission/bakup_unuse/serverRecv.c
 /LargeFile-SEMt-transmission/bakup_unuse/sender - 副本.c
@@ -274,3 +274,4 @@ __pycache__/
 /LargeFile-SEMt-transmission/bakup_unuse/clientSend.h
 /LargeFile-SEMt-transmission/bakup_unuse/clientSend.c
 /LargeFile-SEMt-transmission/bakup_unuse/aess.c
+/LargeFile-SEMt-transmission/include/zhelpers.h

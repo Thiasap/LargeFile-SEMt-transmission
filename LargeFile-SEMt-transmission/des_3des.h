@@ -167,7 +167,6 @@ void usekey(register unsigned long *from);
 
 static unsigned long KnL[32] = { 0L };
 
-
 static unsigned short bytebit[8] = {
 	0200, 0100, 040, 020, 010, 04, 02, 01 };
 
@@ -179,7 +178,7 @@ static unsigned long bigbyte[24] = {
 	0x80L,      0x40L,      0x20L,      0x10L,
 	0x8L,       0x4L,       0x2L,       0x1L };
 
-/* Use the key schedule specified in the Standard (ANSI X3.92-1981). */
+/* 使用(ANSI X3.92-1981)标准中指定的密钥调度 */
 
 static unsigned char pc1[56] = {
 	56, 48, 40, 32, 24, 16,  8,  0, 57, 49, 41, 33, 25, 17,
@@ -196,38 +195,31 @@ static unsigned char pc2[48] = {
 	40, 51, 30, 36, 46, 54, 29, 39, 50, 44, 32, 47,
 	43, 48, 38, 55, 33, 52, 45, 41, 49, 35, 28, 31 };
 
-void deskey(unsigned char *key, short edf)   /* Thanks to James Gillogly & Phil Karn! */
-{
+void deskey(unsigned char *key, short edf){
 	register int i, j, l, m, n;
 	unsigned char pc1m[56], pcr[56];
 	unsigned long kn[32];
-
-	for (j = 0; j < 56; j++)
-	{
+	for (j = 0; j < 56; j++){
 		l = pc1[j];
 		m = l & 07;
 		pc1m[j] = (key[l >> 3] & bytebit[m]) ? 1 : 0;
 	}
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++){
 		if (edf == DE1) m = (15 - i) << 1;
 		else m = i << 1;
 		n = m + 1;
 		kn[m] = kn[n] = 0L;
-		for (j = 0; j < 28; j++)
-		{
+		for (j = 0; j < 28; j++){
 			l = j + totrot[i];
 			if (l < 28) pcr[j] = pc1m[l];
 			else pcr[j] = pc1m[l - 28];
 		}
-		for (j = 28; j < 56; j++)
-		{
+		for (j = 28; j < 56; j++){
 			l = j + totrot[i];
 			if (l < 56) pcr[j] = pc1m[l];
 			else pcr[j] = pc1m[l - 28];
 		}
-		for (j = 0; j < 24; j++)
-		{
+		for (j = 0; j < 24; j++){
 			if (pcr[pc2[j]]) kn[m] |= bigbyte[j];
 			if (pcr[pc2[j + 24]]) kn[n] |= bigbyte[j];
 		}
@@ -236,12 +228,10 @@ void deskey(unsigned char *key, short edf)   /* Thanks to James Gillogly & Phil 
 	return;
 }
 
-static void cookey(register unsigned long *raw1)
-{
+static void cookey(register unsigned long *raw1){
 	register unsigned long *cook, *raw0;
 	unsigned long dough[32];
 	register int i;
-
 	cook = dough;
 	for (i = 0; i < 16; i++, raw1++)
 	{
@@ -259,36 +249,28 @@ static void cookey(register unsigned long *raw1)
 	return;
 }
 
-void cpkey(register unsigned long *into)
-{
+void cpkey(register unsigned long *into){
 	register unsigned long *from, *endp;
-
 	from = KnL, endp = &KnL[32];
 	while (from < endp) *into++ = *from++;
 	return;
 }
 
-void usekey(register unsigned long *from)
-{
+void usekey(register unsigned long *from){
 	register unsigned long *to, *endp;
-
 	to = KnL, endp = &KnL[32];
 	while (to < endp) *to++ = *from++;
 	return;
 }
 
-void des(unsigned char *inblock, unsigned char *outblock)
-{
+void des(unsigned char *inblock, unsigned char *outblock){
 	unsigned long work[2];
-
 	scrunch(inblock, work);
 	desfunc(work, KnL);
 	unscrun(work, outblock);
 	return;
 }
-
-static void scrunch(register unsigned char *outof, register unsigned long *into)
-{
+static void scrunch(register unsigned char *outof, register unsigned long *into){
 	*into = (*outof++ & 0xffL) << 24;
 	*into |= (*outof++ & 0xffL) << 16;
 	*into |= (*outof++ & 0xffL) << 8;
@@ -299,9 +281,7 @@ static void scrunch(register unsigned char *outof, register unsigned long *into)
 	*into |= (*outof & 0xffL);
 	return;
 }
-
-static void unscrun(register unsigned long *outof, register unsigned char *into)
-{
+static void unscrun(register unsigned long *outof, register unsigned char *into){
 	*into++ = (unsigned char)((*outof >> 24) & 0xffL);
 	*into++ = (unsigned char)((*outof >> 16) & 0xffL);
 	*into++ = (unsigned char)((*outof >> 8) & 0xffL);
@@ -312,12 +292,9 @@ static void unscrun(register unsigned long *outof, register unsigned char *into)
 	*into = (unsigned char)(*outof & 0xffL);
 	return;
 }
-
-static void desfunc(register unsigned long *block, register unsigned long *keys)
-{
+static void desfunc(register unsigned long *block, register unsigned long *keys){
 	register unsigned long fval, work, right, leftt;
 	register int round;
-
 	leftt = block[0];
 	right = block[1];
 	work = ((leftt >> 4) ^ right) & 0x0f0f0f0fL;
@@ -337,9 +314,7 @@ static void desfunc(register unsigned long *block, register unsigned long *keys)
 	leftt ^= work;
 	right ^= work;
 	leftt = ((leftt << 1) | ((leftt >> 31) & 1L)) & 0xffffffffL;
-
-	for (round = 0; round < 8; round++)
-	{
+	for (round = 0; round < 8; round++){
 		work = (right << 28) | (right >> 4);
 		work ^= *keys++;
 		fval = SP7[work & 0x3fL];
@@ -365,7 +340,6 @@ static void desfunc(register unsigned long *block, register unsigned long *keys)
 		fval |= SP2[(work >> 24) & 0x3fL];
 		right ^= fval;
 	}
-
 	right = (right << 31) | (right >> 1);
 	work = (leftt ^ right) & 0xaaaaaaaaL;
 	leftt ^= work;
@@ -387,24 +361,19 @@ static void desfunc(register unsigned long *block, register unsigned long *keys)
 	*block = leftt;
 	return;
 }
-
-void des_key(des_ctx *dc, unsigned char *key)
-{
+void des_key(des_ctx *dc, unsigned char *key){
 	deskey(key, EN0);
 	cpkey(dc->ek);
 	deskey(key, DE1);
 	cpkey(dc->dk);
 }
-
 /*在ECB模式下加密几个块 */
-void des_enc(des_ctx *dc, unsigned char *data, int blocks)
-{
+void des_enc(des_ctx *dc, unsigned char *data, int blocks){
 	unsigned long work[2];
 	int i;
 	unsigned char *cp;
 	cp = data;
-	for (i = 0; i < blocks; i++)
-	{
+	for (i = 0; i < blocks; i++){
 		scrunch(cp, work);
 		desfunc(work, dc->ek);
 		unscrun(work, cp);
@@ -412,24 +381,18 @@ void des_enc(des_ctx *dc, unsigned char *data, int blocks)
 	}
 }
 
-void des_dec(des_ctx *dc, unsigned char *data, int blocks)
-{
+void des_dec(des_ctx *dc, unsigned char *data, int blocks){
 	unsigned long work[2];
 	int i;
 	unsigned char *cp;
 	cp = data;
-
-	for (i = 0; i < blocks; i++)
-	{
+	for (i = 0; i < blocks; i++){
 		scrunch(cp, work);
 		desfunc(work, dc->dk);
 		unscrun(work, cp);
 		cp += 8;
 	}
 }
-
 int des_encrypt(const unsigned char* Key, const unsigned char KeyLen, const unsigned char* PlainContent, unsigned char* CipherContent, const int BlockCount);
-
 int des_decrypt(const unsigned char* Key, const unsigned char KeyLen, const unsigned char* CipherContent, unsigned char* PlainContent, const int BlockCount);
-
 #endif
