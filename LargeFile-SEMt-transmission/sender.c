@@ -53,6 +53,8 @@ void zsend(int thread_index) {
 	//return;
 	//  发送结果的套接字
 	void *sender = zmq_socket(context, ZMQ_REQ);
+	int ipv6 = 1;
+	zmq_setsockopt(sender, ZMQ_IPV6, &ipv6, 4);
 	zmq_connect(sender, pAddr);
 	filebuf fbuf;
 	fbuf.mark = 0;
@@ -183,6 +185,8 @@ int sender_init(argv_info *info) {
 		printf("zmq init error!\n");
 		return;
 	}
+	int ipv6=1;
+	zmq_setsockopt(file_sender, ZMQ_IPV6, &ipv6, 4);
 	printf("[client]Connecting %s ...\n", pAddr);
 	zmq_connect(file_sender, pAddr);
 	memcpy(file.filename, info->filename, strlen(info->filename) + 1);
@@ -243,6 +247,7 @@ int sender_init(argv_info *info) {
 	char * replay = s_recv(file_sender);
 	if (replay == "") return;
 	printf("[client]server reply: %s\n",replay);
+	free(file_sender);
 	Recv_all = 0;
 	return 1;
 }

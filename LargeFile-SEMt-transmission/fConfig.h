@@ -8,7 +8,7 @@
 #define MAXTHREAD 8
 #define MAX_FILENAME 255
 #define MARK_SIZE 5 //写入文件位置所占字节
-#define CRYPT_MODES 5 //AES/DES/3DES/RC2/RC4
+#define CRYPT_MODES 5
 #pragma comment(lib,"pthreadVC2.lib")
 typedef struct sFile {
 	char mark;
@@ -34,7 +34,7 @@ typedef struct filebuf {
 }filebuf;
 typedef struct argv_info {
 	char work_mode;		//-r
-	char ip[16];		//-l
+	char ip[42];		//-l
 	char port[6];		//-p
 	int crypt_mode;		//-c
 	int threadnum;		//-t

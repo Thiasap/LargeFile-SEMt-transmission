@@ -78,7 +78,7 @@ int dealwith_param(char *p) {
 	}
 	if (strcmp("-l", lastparam) == 0) {
 		if(p[0] == '*') memcpy(param.ip, p, 1);
-		else if ((!(strlen(p) >= 7 && strlen(p) <= 15))) {
+		else if ((!(strlen(p) >= 2 && strlen(p) <= 42))) {
 			printf("Input IP error!\n");
 			return 0;
 		}else {

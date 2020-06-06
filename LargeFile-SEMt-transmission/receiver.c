@@ -156,6 +156,8 @@ void zrecv(argv_info * info) {
 		zmq_ctx_destroy(context);
 		return 0;
 	}
+	int ipv6 = 1;
+	zmq_setsockopt(sink, ZMQ_IPV6, &ipv6, 4);
 	while (1) {
 		ready_recv(info);
 	}
